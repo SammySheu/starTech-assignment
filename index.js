@@ -17,8 +17,21 @@ const storage = multer.diskStorage({
 
 const uploadMiddleWare = multer({storage:storage})
 
+app.use(express.urlencoded({ extended: false }));
+// app.use(express.json())
+
 app.get('/', (req, res) => {
-    res.sendFile( path.join( __dirname + '/frontendPage.html' ) )
+    res.sendFile( path.join( __dirname + '/views/frontendPage.html' ) )
+})
+
+app.post('/login', (req, res) => {
+    const loginUser = req.body;
+    res.send(req.body);
+})
+
+app.post('/register', (req, res) => {
+    const registUser = req.body;
+    res.send(req.body)
 })
 
 app.post('/upload',uploadMiddleWare.single('image'), (req, res) => {
