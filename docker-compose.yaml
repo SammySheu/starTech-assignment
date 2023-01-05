@@ -1,0 +1,11 @@
+services:
+  mysql-server:
+    build: ./mysql_init
+    ports:
+      - 3306:3306
+    container_name: mysql_container
+    volumes:
+      - mysql-server_db:/var/lib/mysql
+volumes:
+  mysql-server_db:
+    driver: local
