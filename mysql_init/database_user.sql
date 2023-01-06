@@ -7,5 +7,6 @@ CREATE TABLE user(
     date_added TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+
 INSERT INTO user(email, password)
 VALUES ('test@email.com', 'test_password');

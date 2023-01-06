@@ -24,9 +24,19 @@ app.get('/', (req, res) => {
     res.sendFile( path.join( __dirname + '/views/frontendPage.html' ) )
 })
 
-app.get('/show', async (req, res) => {
+app.get('/show', verifyToken, async (req, res) => {
+    jwt.verify(req.token, 'starTechSecretKey', (err, authData) => {
+        if(err){
+            return res.sendStatus(403);
+        } else{
+            return res.json({
+                message: 'Post request succeed',
+                authData
+            });
+        }
+    })
     const data = await pool.query('SELECT * FROM user;');
-    return data[0]
+    // return res.send(data[0])
 })
 
 app.post('/login', async (req, res) => {
@@ -34,7 +44,15 @@ app.post('/login', async (req, res) => {
     const dataFromDB = await getUserData(loginUser.email);
     if(dataFromDB == null) return 'Cannot find this email in MySQL';
     else{
-        res.send(authenticateUser(loginUser, dataFromDB))
+        if(authenticateUser(loginUser, dataFromDB)){
+            jwt.sign({loginUser}, 'starTechSecretKey', {expiresIn: '180s'}, (err, token) => {
+                return res.json({token})
+            })
+        }
+        else{
+            res.send('Password incorrect')
+        }
+        
     }
 })
 
@@ -44,12 +62,19 @@ const getUserData = async (email) => {
     return response[0][0];
 }
 const authenticateUser = (loginUser, dataFromDB) => {
-    if(loginUser.password === dataFromDB.password){
-        return 'Password correct';
+    if(loginUser.password === dataFromDB.password)
+        return true;
+    else
+        return false;
+}
+function verifyToken(req, res, next){
+    const bearerHeader = req.headers['authorization'];
+    if(bearerHeader){
+        req.token = bearerHeader.split(' ')[1]
+        next();
     }
-    else {
-        return 'Password incorrect';
-    }
+    else
+        res.sendStatus(403)
 }
 
 app.post('/register', (req, res) => {
