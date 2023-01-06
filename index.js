@@ -38,7 +38,7 @@ app.post('/login', async (req, res) => {
     else{
         if(authenticateUser(loginUser, dataFromDB)){
             jwt.sign({loginUser}, 'starTechSecretKey', {expiresIn: '10m'}, (err, token) => {
-                res.setHeader['authorization'] = token;
+                // res.setHeader['authorization'] = token;
                 console.log(res)
                 return res.json({token})
             })
@@ -93,7 +93,8 @@ app.post('/register', (req, res) => {
 })
 
 app.post('/upload',verifyToken, uploadMiddleware.single('image'), (req, res) => {
-    
+    const sql = `INSERT INTO picture(pictureName, pictureURL, belongTo, isPrivate) VALUES ('${req.file.filename}', '${req.file.path}', 1, false);`
+    pool.query(sql)
     return res.send('Image upload successfully')
 })
 
