@@ -11,11 +11,12 @@ const storage = multer.diskStorage({
     destination: './Images',
     filename: (req, file, callback) => {
         console.log(file);
+        // return Date.now() + file.originalname;
         callback(null, Date.now() + '_' + file.originalname)
     }
 })
 
-const uploadMiddleWare = multer({storage:storage})
+const uploadMiddleware = multer({storage:storage})
 
 app.use(express.urlencoded({ extended: false }));
 // app.use(express.json())
@@ -25,16 +26,7 @@ app.get('/', (req, res) => {
 })
 
 app.get('/show', verifyToken, async (req, res) => {
-    jwt.verify(req.token, 'starTechSecretKey', (err, authData) => {
-        if(err){
-            return res.sendStatus(403);
-        } else{
-            return res.json({
-                message: 'Post request succeed',
-                authData
-            });
-        }
-    })
+    
     const data = await pool.query('SELECT * FROM user;');
     // return res.send(data[0])
 })
@@ -45,7 +37,9 @@ app.post('/login', async (req, res) => {
     if(dataFromDB == null) return 'Cannot find this email in MySQL';
     else{
         if(authenticateUser(loginUser, dataFromDB)){
-            jwt.sign({loginUser}, 'starTechSecretKey', {expiresIn: '180s'}, (err, token) => {
+            jwt.sign({loginUser}, 'starTechSecretKey', {expiresIn: '10m'}, (err, token) => {
+                res.setHeader['authorization'] = token;
+                console.log(res)
                 return res.json({token})
             })
         }
@@ -58,7 +52,7 @@ app.post('/login', async (req, res) => {
 
 const getUserData = async (email) => {
     const response = await pool.query(`SELECT * FROM user WHERE email = "${email}";`);
-    console.log(response[0][0]);
+    // console.log(response[0][0]);
     return response[0][0];
 }
 const authenticateUser = (loginUser, dataFromDB) => {
@@ -71,10 +65,23 @@ function verifyToken(req, res, next){
     const bearerHeader = req.headers['authorization'];
     if(bearerHeader){
         req.token = bearerHeader.split(' ')[1]
-        next();
+        jwt.verify(req.token, 'starTechSecretKey', (err, authData) => {
+            if(err){
+                return res.sendStatus(403);
+            } else{
+                console.log('inVerifyTokenFunction')
+                next()
+                // return 'verifyTokenFinished';
+                // return res.json({
+                //     message: 'Post request succeed',
+                //     authData
+                // });
+            }
+        })
+        // next();
     }
     else
-        res.sendStatus(403)
+        return res.sendStatus(403)
 }
 
 app.post('/register', (req, res) => {
@@ -85,8 +92,9 @@ app.post('/register', (req, res) => {
     
 })
 
-app.post('/upload',uploadMiddleWare.single('image'), (req, res) => {
-    res.send('Image upload successfully')
+app.post('/upload',verifyToken, uploadMiddleware.single('image'), (req, res) => {
+    
+    return res.send('Image upload successfully')
 })
 
 app.listen(3000, () => {
