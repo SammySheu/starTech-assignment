@@ -1,0 +1,293 @@
+openapi: 3.0.3
+info:
+  title: Backend Project 
+  termsOfService: http://swagger.io/terms/
+  contact:
+    email: samsheu1997@gmail.com  
+  
+  version: 0.0.1
+
+servers:
+  - url: http://127.0.0.1:3000
+tags:
+  - name: user
+    description: Operations about user
+  - name: picture
+    description: Operations about picture
+paths:
+  /register:
+    get:
+      tags:
+        - user
+      summary: To show register page
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: string
+                example: This endpoint and method are to show registerPage.html
+    post:
+      tags:
+        - user
+      summary: Create user information
+      requestBody:
+        description: Build a new user
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RegistUser'
+      responses:
+        '200':
+          description: not a successful operation for building user
+          content:
+            application/json:
+              schema:
+                type: string
+                example: 
+                  - Email already exists
+        '201':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: string
+                example: Succeed to build user
+  /login:
+    get:
+      tags:
+        - user
+      summary: To show login page
+      responses:
+         '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: string
+                example: This endpoint and method are to show loginPage.html
+    post:
+      tags:
+        - user
+      summary: Login user
+      requestBody:
+        description: Login user
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LoginUser'
+      responses:
+        '200':
+          description: not a successful operation for loging in user
+          content:
+            application/json:
+              schema:
+                type: string
+                example: 
+                  - Cannot find this email in database
+                  - Incorrect password
+        '201':
+          description: successful operation for getting a token
+          content:
+            application/json:
+              schema:
+                type: object
+                example: {"access_token": "jnhbghjkjhnbvcftyuijnbvcdftg"}
+  /uploadPicture:
+    post:
+      tags:
+        - picture
+      summary: Upload pictures
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Upload pictures
+        
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LoginUser'
+      responses:
+        '201':
+          description: User successfully upload a file
+          content:
+            application/json:
+              schema:
+                type: string
+                example: Image upload successfully
+        '400':
+          description: User didn't include files
+          content:
+            application/json:
+              schema:
+                type: string
+                example: File is missing
+        
+        '401':
+          description: Frontend should set token in headers
+          content:
+            application/json:
+              schema:
+                type: object
+                example: It is an unauthorized request
+        '422':
+          description: Token was deprecated or missing some parts
+          content:
+            application/json:
+              schema:
+                type: string
+                example: 
+                  - jwt must be provided
+                  - jwt expired
+                  - invalid signature
+  /setPrivate:
+    post:
+      tags:
+        - picture
+      summary: Set private or not
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: User could set their picture to private/public
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SetPrivateSchema'
+       
+      responses:
+        '200':
+          description: User successfully update picture status
+          content:
+            application/json:
+              schema:
+                type: string
+                example: Update success
+        '400':
+          description: User didn't include files
+          content:
+            application/json:
+              schema:
+                type: string
+                example: File is missing
+        
+        '401':
+          description: Frontend should set token in headers
+          content:
+            application/json:
+              schema:
+                type: object
+                example: It is an unauthorized request
+        '404':
+          description: Frontend didn't include the filename user want to delete
+          content:
+            application/json:
+              schema:
+                type: string
+                example: Missing delete info or picture not found
+        '422':
+          description: Token was deprecated or missing some parts
+          content:
+            application/json:
+              schema:
+                type: string
+                example: 
+                  - jwt must be provided
+                  - jwt expired
+                  - invalid signature
+  /deletePicture:
+    post:
+      tags:
+        - picture
+      summary: Upload pictures
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: User could delete their pictures
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DeletePictureSchema'
+      responses:
+        '200':
+          description: User successfully delete a file
+          content:
+            application/json:
+              schema:
+                type: string
+                example: Delete both from file system and database
+        
+        '401':
+          description: Frontend should set token in headers
+          content:
+            application/json:
+              schema:
+                type: object
+                example: It is an unauthorized request
+        '404':
+          description: Frontend didn't include the filename user want to delete
+          content:
+            application/json:
+              schema:
+                type: string
+                example: Missing delete info or picture not found
+        '422':
+          description: Token was deprecated or missing some parts
+          content:
+            application/json:
+              schema:
+                type: string
+                example: 
+                  - jwt must be provided
+                  - jwt expired
+                  - invalid signature
+  
+components:
+  schemas:
+    RegistUser:
+      required:
+        - email
+        - password
+      type: object
+      properties:
+        email:
+          type: string
+          example: test_email
+        password:
+          type: string
+          example: test_password
+    LoginUser:
+      required:
+        - email
+        - password
+      type: object
+      properties:
+        email:
+          type: string
+          example: test_email
+        password:
+          type: string
+          example: test_password
+    SetPrivateSchema:
+      type: object
+      properties:
+        picture_id:
+          type: integer
+          example: 1
+        setPrivate:
+          type: boolean
+          example: 1
+    DeletePictureSchema:
+      type: object
+      properties:
+        deleteOne:
+          type: integer
+          example: 24
+          
+  securitySchemes:
+    bearerAuth:            # arbitrary name for the security scheme
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - bearerAuth: [] 

@@ -18,16 +18,15 @@ function verifyToken(req, res, next){
     const bearerHeader = req.headers['authorization'];
     if(bearerHeader){
         req.token = bearerHeader.split(' ')[1]
-        jwt.verify(req.token, 'starTechSecretKey', (err, authData) => {
-            if(err){
-                return res.sendStatus(403);
-            } else{
-                next()
-            }
-        })
+            jwt.verify(req.token, 'starTechSecretKey', (err, authData) => {
+                if(err)
+                    return res.status(422).send(err.message);
+                else
+                    next()
+            })
     }
     else
-        return res.sendStatus(403)
+        return res.status(401).send('It is an unauthorized request')
 }
 
 const storage = multer.diskStorage({

@@ -6,6 +6,17 @@ services:
     container_name: mysql_container
     volumes:
       - mysql-server_db:/var/lib/mysql
+  
+  # express-server:
+  #   build: ./
+  #   restart: always
+  #   command: node ./app.js;
+  #   depends_on:
+  #     - mysql-server
+  #   ports:
+  #     - 3000:3000
+  #   container_name: express_container
+
 volumes:
   mysql-server_db:
     driver: local
