@@ -1,6 +1,7 @@
 openapi: 3.0.3
 info:
   title: Backend Project 
+    
   termsOfService: http://swagger.io/terms/
   contact:
     email: samsheu1997@gmail.com  
@@ -39,6 +40,13 @@ paths:
             schema:
               $ref: '#/components/schemas/RegistUser'
       responses:
+        '201':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: string
+                example: Succeed to build user
         '200':
           description: not a successful operation for building user
           content:
@@ -47,13 +55,6 @@ paths:
                 type: string
                 example: 
                   - Email already exists
-        '201':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                type: string
-                example: Succeed to build user
   /login:
     get:
       tags:
@@ -241,7 +242,37 @@ paths:
                   - jwt must be provided
                   - jwt expired
                   - invalid signature
-  
+  /personalPage:
+    post:
+      tags:
+        - user & picture
+      summary: show public pictures
+      requestBody:
+        description: show public pictures
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PersonalpicturesSchema'
+      responses:
+        '200':
+          description: successfully find pictures and return with public pictures
+          content:
+            application/json:
+              schema:
+                type: object
+                example: {
+                  "userID": '1',
+                  "picturesPublic":["Images/1673094688487_mnbgyujkjnbghyuikmnbhu.png",
+                    "Images/1673094690203_mnbgyujkjnbghyuikmnbhu.png",
+                    "Images/1673094691805_mnbgyujkjnbghyuikmnbhu.png"]
+                }
+        '201':
+          description: successful operation for getting a token
+          content:
+            application/json:
+              schema:
+                type: object
+                example: {"access_token": "jnhbghjkjhnbvcftyuijnbvcdftg"}
 components:
   schemas:
     RegistUser:
@@ -283,6 +314,13 @@ components:
         deleteOne:
           type: integer
           example: 24
+    PersonalpicturesSchema:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          example: 1
+          
           
   securitySchemes:
     bearerAuth:            # arbitrary name for the security scheme

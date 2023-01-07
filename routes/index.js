@@ -7,9 +7,22 @@ const pool = require('../configs/mysql_config');
 const jwt = require('jsonwebtoken');
 const {getUserData, authenticateUser, verifyToken, uploadMiddleware} = require('../configs/customFunction');
 
-router.get('/show', verifyToken, async (req, res) => {
-    const data = await pool.query('SELECT * FROM user;');
-    // return res.send(data[0])
+router.post('/personalPage',async (req, res) => {
+    const userID = req.body.user_id;
+    const sqlShow_public = `SELECT pictureURL FROM picture WHERE belongTo = ${userID} and isPrivate = 0`;
+    pool.query(sqlShow_public)
+        .then((searchData) => {
+            if(searchData[0].length){
+                let picturesPublic = [];
+                for(let i = 0 ; i < searchData[0].length ; i++){
+                    picturesPublic.push(searchData[0][i].pictureURL);
+                }
+                let dataToFrontend = {userID, picturesPublic}
+                return res.status(201).json(dataToFrontend);
+            }
+            else 
+                return res.status(200).send('No public pictures were found');
+        })
 })
 
 router.post('/login', async (req, res) => {
