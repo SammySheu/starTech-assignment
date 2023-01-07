@@ -22,16 +22,9 @@ function verifyToken(req, res, next){
             if(err){
                 return res.sendStatus(403);
             } else{
-                console.log('inVerifyTokenFunction')
                 next()
-                // return 'verifyTokenFinished';
-                // return res.json({
-                //     message: 'Post request succeed',
-                //     authData
-                // });
             }
         })
-        // next();
     }
     else
         return res.sendStatus(403)
@@ -41,7 +34,6 @@ const storage = multer.diskStorage({
     destination: './Images',
     filename: (req, file, callback) => {
         console.log(file);
-        // return Date.now() + file.originalname;
         callback(null, Date.now() + '_' + file.originalname)
     }
 })
