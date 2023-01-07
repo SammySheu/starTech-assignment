@@ -55,6 +55,13 @@ router.post('/uploadPicture',verifyToken, uploadMiddleware.single('image'), (req
     })
 })
 
+router.post('/deletePicture', verifyToken, (req, res) => {
+    console.log(req.body.deleteOne);
+    const sqlDelete = `DELETE FROM picture WHERE picture_id = ${req.body.deleteOne}`
+    pool.query(sqlDelete)
+        .then(res.send('Delete success'));
+})
+
 router.post('/setPrivate', verifyToken, (req, res) => {
     jwt.verify(req.token, 'starTechSecretKey', (err, auth) => {
         
