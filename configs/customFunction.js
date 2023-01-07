@@ -33,7 +33,7 @@ function verifyToken(req, res, next){
 const storage = multer.diskStorage({
     destination: './Images',
     filename: (req, file, callback) => {
-        console.log(file);
+        // console.log(file);
         callback(null, Date.now() + '_' + file.originalname)
     }
 })

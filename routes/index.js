@@ -1,11 +1,11 @@
 let express = require('express');
 let router = express.Router();
 const path = require('path');
+const fs = require('fs');
 
 const pool = require('../configs/mysql_config');
 const jwt = require('jsonwebtoken');
 const {getUserData, authenticateUser, verifyToken, uploadMiddleware} = require('../configs/customFunction');
-const { query } = require('../configs/mysql_config');
 
 // router.get('/', (req, res) => {
 //     res.sendFile( path.join( __dirname + '/../views/frontendPage.html' ) )
@@ -56,10 +56,17 @@ router.post('/uploadPicture',verifyToken, uploadMiddleware.single('image'), (req
 })
 
 router.post('/deletePicture', verifyToken, (req, res) => {
-    console.log(req.body.deleteOne);
-    const sqlDelete = `DELETE FROM picture WHERE picture_id = ${req.body.deleteOne}`
-    pool.query(sqlDelete)
-        .then(res.send('Delete success'));
+    const sqlFindData= `SELECT * FROM picture WHERE picture_id = ${req.body.deleteOne}`;
+    pool.query(sqlFindData)
+        .then((dataFound) => {
+            if(dataFound[0][0]){
+                const sqlDelete = `DELETE FROM picture WHERE picture_id = ${req.body.deleteOne}`
+                const p1 = fs.promises.unlink(`./${dataFound[0][0].pictureURL}`)
+                const p2 = pool.query(sqlDelete)
+                Promise.all([p1, p2])
+                    .then(res.send('Delete both from file system and database'))
+            }
+        })
 })
 
 router.post('/setPrivate', verifyToken, (req, res) => {
