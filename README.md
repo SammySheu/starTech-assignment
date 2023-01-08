@@ -13,7 +13,7 @@ docker-compose up --build
 ```
 docker-compose would have 2 containers running on the back (mysql_container & express_container). The Server is on
 ```
-http://127.0.0.1:3000/{endpoins_provide_below}
+http://127.0.0.1:3000/{endpoints_provided_below}
 ```
 
 2. There are 6 API endpoints which could complete above tasks. 
